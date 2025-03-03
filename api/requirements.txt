@@ -1,0 +1,9 @@
+fastapi==0.95.0
+uvicorn==0.20.0
+psycopg2-binary==2.9.6  # or 'psycopg[binary]' for Python 3.11 (Depending on OS)
+SQLAlchemy==2.0.5
+python-dotenv==1.0.0
+passlib==1.7.4  # for password hashing
+python-jose[cryptography]==3.3.0  # for JWT generation/verification
+python-multipart==0.0.6
+asyncpg==0.27.0    # or whatever the latest stable version is

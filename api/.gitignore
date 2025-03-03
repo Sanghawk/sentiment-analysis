@@ -1,0 +1,20 @@
+# Python artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+*.db
+
+# Virtual environment
+venv/
+.env
+.env.local
+alembic/versions/
+migrations/
+
+# Pytest and coverage reports
+.coverage
+htmlcov/
+*.cover
+*.pytest_cache/
