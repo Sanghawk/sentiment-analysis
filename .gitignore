@@ -1,0 +1,23 @@
+# Ignore node modules and Python virtual environments globally
+node_modules/
+venv/
+__pycache__/
+.env
+.env.local
+.env.development
+.env.production
+.DS_Store
+*.log
+*.pyc
+*.pyo
+*.pyd
+db.sqlite3
+.volumes/
+.idea/
+.vscode/
+*.swp
+
+# Ignore Docker build artifacts
+docker-compose.override.yml
+docker-compose.prod.yml
+*.tar
