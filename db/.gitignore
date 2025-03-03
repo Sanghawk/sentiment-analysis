@@ -1,0 +1,4 @@
+# Database dumps and temporary files
+*.sql
+*.sqlite3
+pgdata/
