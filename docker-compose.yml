@@ -71,7 +71,7 @@ services:
       - rabbitmq
     command: python consumer.py
     deploy:
-      replicas: 1   # Run 3 consumer instances
+      replicas: 3   # Run 3 consumer instances
 
 volumes:
   postgres_data:
