@@ -41,6 +41,37 @@ services:
       - .env
     ports:
       - "3000:3000"
+  
+  # RabbitMQ Service
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: rabbitmq_etl
+    restart: always
+    ports:
+      - "5672:5672"   # RabbitMQ messaging port
+      - "15672:15672" # RabbitMQ Management UI
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+
+  producer:
+    build: 
+      context: ./bandito
+      dockerfile: Dockerfile
+    container_name: producer
+    depends_on:
+      - rabbitmq
+    command: python producer.py
+
+  consumer:
+    build: 
+      context: ./bandito
+      dockerfile: Dockerfile
+    depends_on:
+      - rabbitmq
+    command: python consumer.py
+    deploy:
+      replicas: 1   # Run 3 consumer instances
 
 volumes:
   postgres_data:
