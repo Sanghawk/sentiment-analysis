@@ -93,6 +93,8 @@ def process_url(coindesk_sitemap_link):
     article_json = json.dumps(data, indent=2)
     logging.info(f"Extracted Data: {article_json}")
 
+    # TODO: gotta figure out where to put the data now.
+
     # Delay to prevent IP blocking (adaptive)
     time.sleep(min(5, max(1, len(data["article_content"]) // 500)))  # Adjust sleep dynamically
 
