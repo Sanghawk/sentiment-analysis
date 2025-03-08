@@ -1,0 +1,6 @@
+pika
+requests
+beautifulsoup4
+boto3
+psycopg2-binary
+python-dotenv   # If using .env files for credentials
