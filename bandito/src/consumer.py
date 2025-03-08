@@ -235,10 +235,10 @@ def callback(ch, method, properties, body):
     """RabbitMQ message handler."""
     coindesk_sitemap_link = body.decode()
     logging.info(f"Processing {coindesk_sitemap_link}")
-    # try:
-    #     process_url(coindesk_sitemap_link)
-    # except Exception as e:
-    #     logging.error(f"Error processing URL {coindesk_sitemap_link}: {e}")
+    try:
+        process_url(coindesk_sitemap_link)
+    except Exception as e:
+        logging.error(f"Error processing URL {coindesk_sitemap_link}: {e}")
     ch.basic_ack(delivery_tag=method.delivery_tag)
 
 

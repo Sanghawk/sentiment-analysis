@@ -3,7 +3,7 @@ import time
 import requests
 import pika
 from bs4 import BeautifulSoup
-from urllib.parse import urljoin
+from urllib.parse import urljoin,urlparse
 from PGManager.PGManager import PGManager  # import our DB manager
 import os
 from dotenv import load_dotenv
@@ -37,6 +37,8 @@ class SitemapCrawler:
         :param delay: Delay (in seconds) between requests.
         """
         self.base_url = base_url
+        self.allowed_domains = {"www.coindesk.com"}
+        self.ignore_sections = {"video", "videos", "podcast", "podcasts", "webinar", "webinars", "price", "focus", "author", "tag"}
         self.sitemap_start = sitemap_start
         self.delay = delay
         self.session = requests.Session()
@@ -98,7 +100,19 @@ class SitemapCrawler:
             a_tags = link_grid.find_all("a", href=True)
             for a in a_tags:
                 href = a["href"].strip()
-                links.append(f'{self.base_url}{href}')
+                parsed = urlparse(href)
+                # Check if the URL path starts with any value in self.ignore_section
+                if not parsed.path:
+                    continue
+
+                if parsed.path.split("/")[1] in self.ignore_sections:
+                    continue
+
+                # Build url based on href format
+                if not parsed.netloc:
+                    links.append(urljoin(self.base_url, href))
+                elif parsed.netloc in self.allowed_domains:
+                    links.append(href)
         except Exception as e:
             logging.info(f"[process_sitemap error] {sitemap_url} -> {e}")
             logging.info("Issue with parsing the sitemap links")
@@ -115,7 +129,7 @@ class SitemapCrawler:
         caches it in the database.
         """
         if link in self.cached_urls:
-            logging.info(f"Link already cached, skipping: {link}")
+            # logging.info(f"Link already cached, skipping: {link}")
             return
         
         self.push_to_rabbitmq(link)
@@ -123,22 +137,25 @@ class SitemapCrawler:
 
     def push_to_rabbitmq(self, link):
         """Pushes an extracted link to the RabbitMQ queue."""
-        logging.info(f"Pushing to RabbitMQ: {link}")
+        # logging.info(f"Pushing to RabbitMQ: {link}")
         self.channel.basic_publish(exchange='', routing_key='sitemap_links', body=link)
 
 
     def run(self):
         """Main execution loop for sitemap crawling."""
         while True:
+            # Uncomment for testing single sitemap 
+            # self.process_sitemap("https://www.coindesk.com/sitemap/76")
             sitemap_links = self.get_sitemap_links()
             for sitemap_link in sitemap_links:
                 self.process_sitemap(sitemap_link)
+            
             logging.info("Restarting sitemap extraction cycle...")
             time.sleep(self.delay)
 
 
 if __name__ == "__main__":
-    crawler = SitemapCrawler(base_url="https://www.coindesk.com", sitemap_start="/sitemap/1", rabbitmq_host="rabbitmq")
+    crawler = SitemapCrawler(base_url="https://www.coindesk.com", sitemap_start="/sitemap/1", rabbitmq_host="rabbitmq", delay=1)
     try:
         crawler.run()
     except KeyboardInterrupt:
