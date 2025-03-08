@@ -68,10 +68,13 @@ services:
       context: ./bandito
       dockerfile: Dockerfile
     depends_on:
-      - rabbitmq
+      db:
+        condition: service_healthy
     command: python consumer.py
+    env_file:
+      - .env
     deploy:
-      replicas: 3   # Run 3 consumer instances
+      replicas: 1   # Run 3 consumer instances
 
 volumes:
   postgres_data:
