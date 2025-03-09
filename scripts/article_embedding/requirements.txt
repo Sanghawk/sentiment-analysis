@@ -1,0 +1,6 @@
+boto3
+openai
+psycopg2
+python-dotenv   # If using .env files for credentials
+tiktoken
+nltk
