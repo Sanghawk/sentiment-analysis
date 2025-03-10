@@ -4,7 +4,8 @@ models.py
 Contains SQLAlchemy models for database tables. Each class inherits from 'Base'.
 """
 
-from sqlalchemy import Column, Integer, Text, DateTime
+from sqlalchemy import Column, Integer, Text, DateTime, ForeignKey, UniqueConstraint
+from pgvector.sqlalchemy import Vector
 from .database import Base
 
 class Article(Base):
@@ -31,3 +32,19 @@ class Article(Base):
     article_s3_url = Column(Text, nullable=True)
 
     # Additional columns and relationships can be added here as needed.
+
+class ArticleChunk(Base):
+    """
+    Represents a chunk of an article, mapped to the article_chunks table.
+    """
+    __tablename__ = "article_chunks"
+
+    id = Column(Integer, primary_key=True, index=True)
+    article_id = Column(Integer, ForeignKey("articles.id"), nullable=False)
+    chunk_text = Column(Text, nullable=False)
+    token_size = Column(Integer, nullable=False)
+    embedding = Column(Vector(1536), nullable=False)
+
+    # The UNIQUE constraint (article_id, chunk_text, token_size) is defined at the DB level
+    # but you could add a __table_args__ for it if you want:
+    __table_args__ = (UniqueConstraint('article_id', 'chunk_text', 'token_size'),)

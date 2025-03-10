@@ -4,10 +4,15 @@ schemas.py
 Defines Pydantic models (schemas) for request and response validation.
 """
 
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel
 from datetime import datetime
 
+"""
+------------------------------------------------------------------------------
+    articles
+------------------------------------------------------------------------------
+"""
 class ArticleCreate(BaseModel):
     # unchanged from before
     display_datetime: Optional[datetime] = None
@@ -40,3 +45,63 @@ class PaginatedArticles(BaseModel):
     total: int               # total number of items
     page: int                # current page number
     page_size: int           # items per page
+
+
+"""
+------------------------------------------------------------------------------
+    article_chunks
+------------------------------------------------------------------------------
+"""
+class ArticleChunkCreate(BaseModel):
+    """
+    Schema for creating a new article chunk.
+    """
+    article_id: int
+    chunk_text: str
+    token_size: int
+    # embedding is typically generated asynchronously, so you may or may not allow it directly in create
+
+class ArticleChunkResponse(ArticleChunkCreate):
+    """
+    Schema for reading article chunk data.
+    Includes the ID and possibly the embedding if you want to expose it.
+    """
+    id: int
+
+    class Config:
+        orm_mode = True
+
+class PaginatedArticleChunks(BaseModel):
+    """
+    A paginated response schema for listing article chunks.
+    """
+    items: List[ArticleChunkResponse]
+    total: int
+    page: int
+    page_size: int
+
+
+"""
+------------------------------------------------------------------------------
+    article_chunks search 
+------------------------------------------------------------------------------
+"""
+
+class ArticleChunkSearchResult(BaseModel):
+    chunk: ArticleChunkResponse
+    distance: float
+
+class ArticleChunkSearchResponse(BaseModel):
+    query: str
+    top_k: int
+    results: List[ArticleChunkSearchResult]
+    
+    class Config:
+        orm_mode = True
+
+class PaginatedArticleChunkSearchResults(BaseModel):
+
+    items: List[ArticleChunkSearchResult]
+    total: int
+    page: int
+    page_size: int
