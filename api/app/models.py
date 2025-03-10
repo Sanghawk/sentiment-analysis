@@ -30,6 +30,7 @@ class Article(Base):
     authors = Column(Text, nullable=True)
     content_tier = Column(Text, nullable=True)
     article_s3_url = Column(Text, nullable=True)
+    embedding = Column(Vector(1536), nullable=True)
 
     # Additional columns and relationships can be added here as needed.
 
@@ -43,7 +44,7 @@ class ArticleChunk(Base):
     article_id = Column(Integer, ForeignKey("articles.id"), nullable=False)
     chunk_text = Column(Text, nullable=False)
     token_size = Column(Integer, nullable=False)
-    embedding = Column(Vector(1536), nullable=False)
+    embedding = Column(Vector(1536), nullable=True)
 
     # The UNIQUE constraint (article_id, chunk_text, token_size) is defined at the DB level
     # but you could add a __table_args__ for it if you want:

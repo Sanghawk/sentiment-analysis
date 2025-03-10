@@ -45,8 +45,22 @@ class PaginatedArticles(BaseModel):
     total: int               # total number of items
     page: int                # current page number
     page_size: int           # items per page
+"""
+------------------------------------------------------------------------------
+    articles search
+------------------------------------------------------------------------------
+"""
+class ArticleSearchResult(BaseModel):
+    article: ArticleResponse
+    distance: float
 
 
+class PaginatedArticleSearchResults(BaseModel):
+
+    items: List[ArticleSearchResult]
+    total: int
+    page: int
+    page_size: int
 """
 ------------------------------------------------------------------------------
     article_chunks
