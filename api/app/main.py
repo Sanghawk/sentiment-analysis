@@ -7,7 +7,7 @@ when the container starts.
 """
 
 from fastapi import FastAPI
-from .routers import auth, articles
+from .routers import auth, articles, article_chunks
 
 def create_app() -> FastAPI:
     """
@@ -22,6 +22,9 @@ def create_app() -> FastAPI:
     # Include your routers
     app.include_router(auth.router, prefix="/auth", tags=["auth"])
     app.include_router(articles.router, prefix="/articles", tags=["articles"])
+
+    # Register the new article_chunks router
+    app.include_router(article_chunks.router, prefix="/article_chunks", tags=["article_chunks"])
 
     return app
 

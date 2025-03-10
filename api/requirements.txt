@@ -7,3 +7,6 @@ passlib==1.7.4  # for password hashing
 python-jose[cryptography]==3.3.0  # for JWT generation/verification
 python-multipart==0.0.6
 asyncpg==0.27.0    # or whatever the latest stable version is
+pgvector
+openai
+debugpy
