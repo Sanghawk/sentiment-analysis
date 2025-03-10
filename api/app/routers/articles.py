@@ -1,3 +1,4 @@
+from openai import OpenAI
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import func
@@ -13,7 +14,13 @@ from ..schemas import (
     ArticleCreate,
     ArticleResponse,
     PaginatedArticles,
+    ArticleSearchResult,
+    PaginatedArticleSearchResults
 )
+
+# Generate embeddings per chunk
+client = OpenAI(api_key=settings.OPENAI_API_KEY)
+embedding_model = "text-embedding-3-small"
 
 router = APIRouter()
 
@@ -141,10 +148,64 @@ async def create_article(article_data: ArticleCreate, db: AsyncSession = Depends
     return new_article
 
 
-@router.get("/{article_id}", response_model=ArticleResponse)
+@router.get("/{article_id:int}", response_model=ArticleResponse)
 async def get_article(article_id: int, db: AsyncSession = Depends(get_db)):
     result = await db.execute(select(Article).where(Article.id == article_id))
     article = result.scalar_one_or_none()
     if not article:
         raise HTTPException(status_code=404, detail="Article not found")
     return article
+
+@router.get("/search_by_similarity", response_model=PaginatedArticleSearchResults)
+async def search_articles_by_similarity(
+    db: AsyncSession = Depends(get_db),
+    # Paginations
+    page: int = Query(1, ge=1, description="Page number, must be >= 1"),
+    page_size: int = Query(10, ge=1, le=100, description="Number of items per page"),
+    # Filters
+    q: str = Query(..., description="Query text to embed for similarity search"),
+):
+    """
+    Retrieve a paginated, list of articles by similarity
+    """
+
+    # 1) Generate embedding for the user query
+    response = client.embeddings.create(input=q, model=embedding_model)
+    query_embedding = response.data[0].embedding  # list of floats
+
+    stmt = (
+        select(
+            Article,
+            # Label distance so we can return it if we want
+            (Article.embedding.cosine_distance(query_embedding)).label("distance")
+        )
+        .order_by("distance")  # ascending distance => most similar first
+    )
+
+    # Pagination offset
+    offset = (page - 1) * page_size
+
+    # Count total
+    total_stmt = select(func.count(Article.id))
+    total_count = await db.scalar(total_stmt)
+
+    # Fetch subset
+    stmt = stmt.offset(offset).limit(page_size)
+    results = await db.execute(stmt)
+    rows = results.all()  # each row: (Article, distance)
+
+    items = []
+    for (article, distance) in rows:
+       items.append(
+           ArticleSearchResult(
+               article=ArticleResponse.from_orm(article),
+               distance=distance
+            )
+        ) 
+       
+    return {
+        "items": items,
+        "total": total_count,
+        "page": page,
+        "page_size": page_size,
+    } 
