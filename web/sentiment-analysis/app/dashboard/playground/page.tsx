@@ -15,7 +15,7 @@ export default function DashboardPlaygroundPage() {
     <DashboardProvider>
       <div>
         <div></div>
-        <div className="grid grid-cols-[30rem_minmax(0,1fr)_25rem] ">
+        <div className="grid grid-cols-[35rem_minmax(0,1fr)_35rem] ">
           <div className="col-start-1">
             <div className=" grid grid-cols-1 grid-rows-[2.5rem_auto] gap-3">
               <div className="row-start-1">{/* <ToggleButton /> */}</div>
