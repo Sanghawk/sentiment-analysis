@@ -6,23 +6,34 @@ from sqlalchemy import select, and_, or_
 from sqlalchemy.future import select
 from typing import Optional
 from datetime import date
-
+import boto3
+from botocore.exceptions import ClientError
+from starlette.concurrency import run_in_threadpool
 from ..config import settings
 from ..database import AsyncSessionLocal
 from ..models import Article
 from ..schemas import (
     ArticleCreate,
     ArticleResponse,
+    ArticleContentResponse,
     PaginatedArticles,
     ArticleSearchResult,
     PaginatedArticleSearchResults
 )
+import gzip
 
 # Generate embeddings per chunk
 client = OpenAI(api_key=settings.OPENAI_API_KEY)
 embedding_model = "text-embedding-3-small"
 
 router = APIRouter()
+
+# Initialize the S3 client at module level (ensure your settings has the AWS credentials and bucket)
+s3_client = boto3.client(
+    "s3",
+    aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+    aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+)
 
 # Dependency for getting DB session
 async def get_db():
@@ -155,6 +166,46 @@ async def get_article(article_id: int, db: AsyncSession = Depends(get_db)):
     if not article:
         raise HTTPException(status_code=404, detail="Article not found")
     return article
+
+@router.get("/{article_id:int}/s3", response_model=ArticleContentResponse)
+async def fetch_article_from_s3(article_id: int, db: AsyncSession = Depends(get_db)):
+    """
+    Fetch an article object from AWS S3 using the provided article_key.
+    Expects the article object to be stored as JSON in S3.
+    """
+    result = await db.execute(select(Article).where(Article.id == article_id))
+    article = result.scalar_one_or_none()
+    if not article:
+        raise HTTPException(status_code=404, detail="Article not found")
+    article_s3_url = article.article_s3_url
+    if not article_s3_url:
+        raise HTTPException(status_code=404, detail="Article has no s3 object stored")
+    
+    bucket_name = article_s3_url.split("/")[2]
+    file_key = "/".join(article_s3_url.split("/")[3:])
+
+    try:
+        # Wrap the blocking S3 call inside a synchronous function
+        def fetch():
+            response = s3_client.get_object(Bucket=bucket_name, Key=file_key)
+            # Read the response body and decode from bytes to a UTF-8 string
+            with gzip.GzipFile(fileobj=response["Body"]) as f:
+                raw_content = f.read().decode("utf-8")
+            return raw_content
+        
+        # Run the blocking call in a thread pool
+        content = await run_in_threadpool(fetch)
+
+        return {
+            "text": content
+        }
+
+    except ClientError as e:
+        error_code = e.response.get("Error", {}).get("Code")
+        if error_code == "NoSuchKey":
+            raise HTTPException(status_code=404, detail="Article not found in S3")
+        else:
+            raise HTTPException(status_code=500, detail=f"Error fetching article: {e}")
 
 @router.get("/search_by_similarity", response_model=PaginatedArticleSearchResults)
 async def search_articles_by_similarity(

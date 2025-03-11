@@ -22,5 +22,7 @@ class Settings:
     JWT_ALGORITHM: str = "HS256"
     OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY")
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 30  # e.g., 30 minutes
+    AWS_ACCESS_KEY_ID: str = os.getenv("AWS_ACCESS_KEY_ID")
+    AWS_SECRET_ACCESS_KEY: str = os.getenv("AWS_SECRET_ACCESS_KEY")
 
 settings = Settings()
