@@ -1,6 +1,22 @@
 @import "tailwindcss";
 @plugin '@tailwindcss/typography';
 
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+  width: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-base-700); /* Tailwind's blue-500 */
+  border-radius: var(--radius-lg);
+}
+
 @theme {
   --color-base-50: oklch(0.985 0 0);
   --color-base-100: oklch(0.967 0.001 286.375);
@@ -42,3 +58,4 @@ body {
   background: var(--background);
   font-family: inter, system-ui;
 }
+
