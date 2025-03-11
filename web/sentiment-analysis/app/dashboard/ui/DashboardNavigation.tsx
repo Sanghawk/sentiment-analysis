@@ -1,4 +1,4 @@
-export default function DashboardNavigation() {
+export function DashboardNavigation() {
   return (
     <div className="fixed inset-x-0 top-0 border-b border-base-950/5 dark:border-base-200/10">
       <div className="bg-base-200 dark:bg-base-950">
