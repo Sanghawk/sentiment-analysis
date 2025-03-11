@@ -2,7 +2,7 @@
 
 import { useState, FormEvent, ChangeEvent, KeyboardEvent } from "react";
 import { useSimilaritySearchContext } from "./SimilaritySearchProvider";
-
+import { MagnifyingGlassIcon } from "@heroicons/react/24/outline";
 /**
  * Form component for performing similarity search queries.
  */
@@ -14,7 +14,7 @@ export function SimilaritySearchForm() {
    * Handles input value changes.
    * @param event - The input change event.
    */
-  function handleInputChange(event: ChangeEvent<HTMLInputElement>) {
+  function handleInputChange(event: ChangeEvent<HTMLTextAreaElement>) {
     setQuery(event.target.value);
   }
 
@@ -24,7 +24,9 @@ export function SimilaritySearchForm() {
    */
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    await search(query);
+    if (query.trim()) {
+      await search(query);
+    }
   }
 
   /**
@@ -33,26 +35,42 @@ export function SimilaritySearchForm() {
    * - Triggers search on `Enter`
    * @param event - The keyboard event.
    */
-  async function handleKeyDown(event: KeyboardEvent<HTMLInputElement>) {
+  async function handleKeyDown(event: KeyboardEvent<HTMLTextAreaElement>) {
     if (event.key === "Escape") {
       setQuery("");
-    } else if (event.key === "Enter") {
+    } else if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
-      await search(query);
+      if (query.trim()) {
+        await search(query);
+      }
     }
   }
 
   return (
     <form onSubmit={handleSubmit}>
-      <input
-        type="search"
-        value={query}
-        onChange={handleInputChange}
-        onKeyDown={handleKeyDown}
-        placeholder="Search..."
-        aria-label="Search"
-      />
-      <button type="submit">Search</button>
+      <div className="relative flex flex-col w-full max-w-2xl mx-auto p-4 border border-white/10 rounded">
+        <div className="max-h-32 overflow-y-auto">
+          <textarea
+            value={query}
+            onChange={handleInputChange}
+            onKeyDown={handleKeyDown}
+            placeholder="Ask anything"
+            aria-label="Search"
+            className="w-full resize-none border-none focus:outline-none"
+            rows={3}
+          />
+        </div>
+
+        <div className="flex justify-end">
+          {/* Submit button pinned at the bottom-left */}
+          <button
+            type="submit"
+            className="cursor-pointer bg-indigo-500/50 text-white p-3 rounded-full hover:bg-indigo-600 transition duration-150"
+          >
+            <MagnifyingGlassIcon className="size-4" />
+          </button>
+        </div>
+      </div>
     </form>
   );
 }

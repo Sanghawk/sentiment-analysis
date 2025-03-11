@@ -12,7 +12,7 @@ export function SimilaritySearchResults() {
   return (
     <div className="">
       <div className="">
-        <div>pagination</div>
+        <div></div>
         <div className="w-full overflow-x-auto whitespace-nowrap font-mono">
           <table className="grid grid-cols-[auto_auto_auto] w-full">
             <thead className="col-span-3 grid grid-cols-subgrid">
