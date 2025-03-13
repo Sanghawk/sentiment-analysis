@@ -1,11 +1,16 @@
 "use client";
 
 import { createContext, useContext, useReducer, ReactNode } from "react";
-import { Article, ArticleContentResponse } from "@/types";
+import {
+  Article,
+  ArticleChunkSearchResult,
+  ArticleContentResponse,
+  PaginatedArticleChunkSearchResults,
+} from "@/types";
 
 // Define the structure of the dashboard state
 interface DashboardState {
-  content: string; // Holds the article content
+  contentList: ArticleChunkSearchResult[]; // Holds the article content
   loading: boolean; // Tracks whether content is being loaded
   error: Error | null; // Stores any error encountered during fetching
   selectedArticle: Article | null; // Stores the currently selected article
@@ -13,7 +18,7 @@ interface DashboardState {
 
 // Extend the state interface to include actions
 interface DashboardContextType extends DashboardState {
-  selectArticle: (article: Article) => Promise<void>; // Function to select and load an article
+  selectArticle: (article: Article, query: string) => Promise<void>; // Function to select and load an article
 }
 
 // Create a context with an undefined default value
@@ -23,7 +28,7 @@ const DashboardContext = createContext<DashboardContextType | undefined>(
 
 // Define the initial state of the dashboard
 const initialState: DashboardState = {
-  content: "",
+  contentList: [],
   loading: false,
   error: null,
   selectedArticle: null,
@@ -52,7 +57,10 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
    * @returns The article content as a string.
    * @throws Error if the request fails.
    */
-  async function fetchArticleContent(articleId: number): Promise<string> {
+
+  async function DEPRECATED__fetchArticleContent(
+    articleId: number
+  ): Promise<string> {
     const response = await fetch(
       `http://localhost:8000/articles/${articleId}/s3`
     );
@@ -63,17 +71,32 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     return result.text;
   }
 
-  /**
-   * Selects an article, fetches its content, and updates the state.
-   * @param article - The article to select.
-   */
-  async function selectArticle(article: Article) {
+  async function fetchArticleChunks(
+    query: string,
+    articleId: number,
+    page: number = 1,
+    pageSize = 100
+  ): Promise<PaginatedArticleChunkSearchResults> {
+    const response = await fetch(
+      `http://localhost:8000/article_chunks/search_by_similarity?page=${page}&page_size=${pageSize}&q=${encodeURIComponent(
+        query
+      )}&article_id=${articleId}`
+    );
+    if (!response.ok) {
+      throw new Error(`Error: ${response.status}`);
+    }
+    const result: PaginatedArticleChunkSearchResults = await response.json();
+    return result;
+  }
+
+  async function selectArticle(article: Article, query: string) {
     dispatch({ loading: true, error: null });
     try {
-      const content = await fetchArticleContent(article.id);
-      dispatch({ content, selectedArticle: article });
+      const result = await fetchArticleChunks(query, article.id);
+
+      dispatch({ contentList: result.items, selectedArticle: article });
     } catch (error) {
-      dispatch({ error: error as Error, content: "" });
+      dispatch({ error: error as Error, contentList: [] });
     } finally {
       dispatch({ loading: false });
     }
