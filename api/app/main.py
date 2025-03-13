@@ -7,7 +7,9 @@ when the container starts.
 """
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from .routers import auth, articles, article_chunks
+
 
 def create_app() -> FastAPI:
     """
@@ -18,6 +20,22 @@ def create_app() -> FastAPI:
         description="Provides endpoints to manage and retrieve crypto news articles, with sentiment analysis features.",
         version="1.0.0"
     )
+
+    # Define the list of origins allowed to make requests.
+    origins = [
+        "http://localhost:3000",
+        # Add other origins as needed.
+    ]
+
+
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,            # Allowed origins, or ["*"] to allow all origins.
+        allow_credentials=True,           # Whether to allow cookies and authentication.
+        allow_methods=["*"],              # Allows all HTTP methods.
+        allow_headers=["*"],              # Allows all headers.
+    )
+
 
     # Include your routers
     app.include_router(auth.router, prefix="/auth", tags=["auth"])

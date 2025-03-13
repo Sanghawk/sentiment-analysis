@@ -10,3 +10,4 @@ asyncpg==0.27.0    # or whatever the latest stable version is
 pgvector
 openai
 debugpy
+boto3
