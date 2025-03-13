@@ -136,50 +136,59 @@ async def list_article_chunks(
 @router.get("/search_by_similarity", response_model=PaginatedArticleChunkSearchResults)
 async def search_chunks_by_similarity(
     db: AsyncSession = Depends(get_db),
-    # Paginations
+    # Pagination
     page: int = Query(1, ge=1, description="Page number, must be >= 1"),
     page_size: int = Query(10, ge=1, le=100, description="Number of items per page"),
     # Filters
     q: str = Query(..., description="Query text to embed for similarity search"),
+    article_id: Optional[int] = Query(None, description="Filter by article_id"),
 ):
     """
-    Retrieve a paginated, list of article of article chunks by similarity
+    Retrieve a paginated list of article chunks by similarity
     """
-
     # 1) Generate embedding for the user query
     response = client.embeddings.create(input=q, model=embedding_model)
     query_embedding = response.data[0].embedding  # list of floats
 
+    # 2) Build the query with similarity calculation
     stmt = (
         select(
             ArticleChunk,
-            # Label distance so we can return it if we want
             (ArticleChunk.embedding.cosine_distance(query_embedding)).label("distance")
         )
         .order_by("distance")  # ascending distance => most similar first
     )
 
-    # Pagination offset
+    # 3) Conditionally add the filter if article_id is provided
+    if article_id is not None:
+        stmt = stmt.where(ArticleChunk.article_id == article_id)
+
+    # 4) Calculate pagination offset
     offset = (page - 1) * page_size
 
-    # Count total
+    # 5) Count total matching items, applying the same filter if necessary
     total_stmt = select(func.count(ArticleChunk.id))
+    if article_id is not None:
+        total_stmt = total_stmt.where(ArticleChunk.article_id == article_id)
     total_count = await db.scalar(total_stmt)
 
-    # Fetch subset
+    # 6) Apply pagination limits
     stmt = stmt.offset(offset).limit(page_size)
     results = await db.execute(stmt)
     rows = results.all()  # each row: (ArticleChunk, distance)
 
-    items = []
-    for (chunk, distance) in rows:
-       items.append(
-           ArticleChunkSearchResult(
-               chunk=ArticleChunkResponse.from_orm(chunk),
-                distance=distance )) 
+    # 7) Build response items
+    items = [
+        ArticleChunkSearchResult(
+            chunk=ArticleChunkResponse.from_orm(chunk),
+            distance=distance
+        )
+        for chunk, distance in rows
+    ]
+
     return {
         "items": items,
         "total": total_count,
         "page": page,
         "page_size": page_size,
-    } 
+    }
