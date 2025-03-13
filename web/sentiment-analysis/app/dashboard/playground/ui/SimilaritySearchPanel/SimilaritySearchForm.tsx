@@ -65,9 +65,10 @@ export function SimilaritySearchForm() {
           {/* Submit button pinned at the bottom-left */}
           <button
             type="submit"
-            className="cursor-pointer bg-indigo-500/50 text-white p-3 rounded-full hover:bg-indigo-600 transition duration-150"
+            className="cursor-pointer bg-indigo-600 text-white px-6 py-1.5 rounded-full hover:bg-indigo-600/70 transition duration-150 font-semibold"
           >
-            <MagnifyingGlassIcon className="size-4" />
+            {/* <MagnifyingGlassIcon className="size-4" /> */}
+            Search
           </button>
         </div>
       </div>

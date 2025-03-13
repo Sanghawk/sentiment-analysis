@@ -1,5 +1,7 @@
 "use client";
 
+import Image from "next/image";
+
 import { useSimilaritySearchContext } from "./SimilaritySearchProvider";
 import { RoutingTableRow } from "./RoutingTableRow";
 import { DateTimeConverter } from "@/ui/DateTimeConverter";
@@ -15,19 +17,30 @@ export function SimilaritySearchResults() {
     prevPage,
     currentRange,
     totalResults,
+    currentQuery,
   } = useSimilaritySearchContext();
 
   if (error) return <p>Error: {error.message}</p>;
 
   return (
     <div className="mt-3">
-      <div className="border border-white/10">
-        <div className="flex justify-end gap-x-3 p-3">
+      <div className="border border-white/10 rounded">
+        <div className="flex items-top gap-3 p-3 text-sm">
+          <span className="text-base-400">articles similar to: </span>
+          {currentQuery ? (
+            <div className="truncate max-w-xs inset-ring-1 font-medium inset-ring-base-500 px-2 py-1 rounded-lg bg-base-500/20 text-base-300 text-sm">
+              {currentQuery}
+            </div>
+          ) : (
+            <div className="font-semibold italic text-sm">n/a</div>
+          )}
+        </div>
+        <div className=" ">
           {!data ? (
             <div />
           ) : (
-            <>
-              <div className="text-sm">
+            <div className="flex justify-end gap-x-3 p-3">
+              <div className="text-sm text-base-400">
                 {`${currentRange.start} - ${currentRange.end} of ${totalResults}`}
               </div>
               <div className="flex gap-x-3">
@@ -37,32 +50,36 @@ export function SimilaritySearchResults() {
                 />
                 <NextPageButton onClick={nextPage} hasNextPage={hasNextPage} />
               </div>
-            </>
+            </div>
           )}
         </div>
-        <div className="w-full overflow-x-auto whitespace-nowrap font-mono">
+        <div className="w-full overflow-x-auto whitespace-nowrap">
           <table className="grid grid-cols-[auto_auto_auto] w-full">
             <thead className="col-span-3 grid grid-cols-subgrid">
               <tr className="col-span-3 grid grid-cols-subgrid">
-                <th className="px-2 py-2.5 text-left text-sm/7 font-semibold text-base-950 dark:text-base-200">
-                  {" "}
+                <th className="px-2 text-left text-sm/7 font-semibold text-base-950 dark:text-base-200">
                   Cosine
                 </th>
-                <th className="px-2 py-2.5 text-left text-sm/7 font-semibold text-base-950 dark:text-base-200">
-                  {" "}
+                <th className="px-2  text-left text-sm/7 font-semibold text-base-950 dark:text-base-200">
                   Title
                 </th>
 
-                <th className="px-2 py-2.5 text-left text-sm/7 font-semibold text-base-950 dark:text-base-200">
+                <th className="px-2  text-left text-sm/7 font-semibold text-base-950 dark:text-base-200">
                   Date
                 </th>
               </tr>
             </thead>
-            <tbody className="col-span-3 grid grid-cols-subgrid border-t border-base-900/10 dark:border-base-200/10">
+            <tbody className="col-span-3 grid grid-cols-subgrid border-base-900/10 dark:border-base-200/10">
               {loading ? (
                 <tr className="col-span-3">
-                  <td className="px-2 py-2 align-top font-mono text-xs/6 font-medium">
-                    TODO: make this into skeleton - fetching results
+                  <td className="flex justify-center">
+                    <Image
+                      src="/assets/cat-typing.gif"
+                      alt="loading"
+                      width="200"
+                      height="200"
+                      unoptimized
+                    />
                   </td>
                 </tr>
               ) : data ? (
@@ -91,8 +108,8 @@ export function SimilaritySearchResults() {
                 })
               ) : (
                 <tr className="col-span-3">
-                  <td className="px-2 py-2 align-top font-mono text-xs/6 font-medium">
-                    No results
+                  <td className="col-span-3 px-2 py-2 align-top font-mono text-xs/6 font-medium text-center w-full">
+                    n/a
                   </td>
                 </tr>
               )}

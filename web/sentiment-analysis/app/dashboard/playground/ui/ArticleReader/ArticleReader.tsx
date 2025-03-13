@@ -3,7 +3,7 @@ import { useDashboardContext } from "@/app/dashboard/playground/DashboardProvide
 import { getBorderColorFromDistance } from "@/app/dashboard/playground/utils";
 import { ArticleChunkSearchResult } from "@/types";
 import { useEffect, useRef } from "react";
-
+import Image from "next/image";
 function sortById(
   contentList: ArticleChunkSearchResult[]
 ): ArticleChunkSearchResult[] {
@@ -17,6 +17,7 @@ export function ArticleReader() {
     highlightedChunkId,
     scrollToChunkId,
     setHighlightedChunkId,
+    loading,
   } = useDashboardContext();
 
   // Ensure refs are correctly managed
@@ -31,6 +32,8 @@ export function ArticleReader() {
     }
   }, [scrollToChunkId]);
 
+  if (loading) return <LoadingScreen />;
+  if (!selectedArticle) return <NoArticleFound />;
   return (
     <div className="mx-auto prose prose-zinc dark:prose-invert pb-24">
       <h1>{selectedArticle?.content_title}</h1>
@@ -52,6 +55,42 @@ export function ArticleReader() {
             </div>
           ))}
       </div>
+    </div>
+  );
+}
+
+function LoadingScreen() {
+  return (
+    <div className="mx-auto prose prose-zinc dark:prose-invert">
+      <div className="flex justify-center">
+        <Image
+          src="/assets/cat-typing.gif"
+          alt="loading"
+          width="200"
+          height="200"
+          unoptimized
+        />
+      </div>
+    </div>
+  );
+}
+
+function NoArticleFound() {
+  return (
+    <div className="mx-auto prose prose-zinc dark:prose-invert">
+      <h1>Welcome to the News Reader!</h1>
+      <p>Read the news based on the relevancy of your query.</p>
+      <h4>Step 1. Enter a query</h4>
+      <p>
+        Like "What is Donald Trumps view on Bitcoin?" The search results will
+        give you a list of articles sorted by relevancy.
+      </p>
+      <h4>Step 2. Select an article</h4>
+      <p>
+        Selecting an article will load the article into this view. You can hover
+        over the text to get a deeper look into how related certain chunks of
+        the article match your query.
+      </p>
     </div>
   );
 }

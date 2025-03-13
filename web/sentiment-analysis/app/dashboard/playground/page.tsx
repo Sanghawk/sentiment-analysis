@@ -13,23 +13,24 @@ import {
 export default function DashboardPlaygroundPage() {
   return (
     <DashboardProvider>
-      <div>
+      <div className="overflow-auto h-[calc(100dvh-(var(--spacing)*14.25))]">
         <div></div>
-        <div className="grid grid-cols-[35rem_minmax(0,1fr)_35rem] ">
-          <div className="col-start-1">
-            <div className=" grid grid-cols-1 grid-rows-[2.5rem_auto_2.5rem]">
+        <div className="grid grid-cols-1 2xl:grid-cols-[35rem_minmax(41rem,1fr)_35rem] gap-3">
+          <div className="2xl:col-start-1">
+            <div className="grid  grid-rows-[2.5rem_auto_2.5rem]">
               <div className="row-start-1"></div>
-
               <div className="row-start-2  max-h-[calc(100dvh-(var(--spacing)*14.25)-5rem)] overflow-auto">
-                <SimilaritySearchProvider>
-                  <SimilaritySearchForm />
-                  <SimilaritySearchResults />
-                </SimilaritySearchProvider>
+                <div className="mx-auto prose prose-zinc dark:prose-invert">
+                  <SimilaritySearchProvider>
+                    <SimilaritySearchForm />
+                    <SimilaritySearchResults />
+                  </SimilaritySearchProvider>
+                </div>
               </div>
               <div className="row-start-3"></div>
             </div>
           </div>
-          <div className="col-start-2 ">
+          <div className="2xl:col-start-2">
             <div className="grid grid-rows-[2.5rem_auto_2.5rem]">
               <div className="row-start-1 w-full text-center"></div>
               <div className="row-start-2 max-h-[calc(100dvh-(var(--spacing)*14.25)-5rem)] overflow-auto">
@@ -38,11 +39,13 @@ export default function DashboardPlaygroundPage() {
               <div className="row-start-3"></div>
             </div>
           </div>
-          <div className="col-start-3">
-            <div className="grid grid-rows-[2.5rem_auto]">
+          <div className="2xl:col-start-3">
+            <div className="grid grid-rows-[2.5rem_auto_2.5rem]">
               <div className="row-start-1"></div>
               <div className="row-start-2 max-h-[calc(100dvh-(var(--spacing)*14.25)-5rem)] overflow-auto">
-                <ArticleInspector />
+                <div className="mx-auto prose prose-zinc dark:prose-invert">
+                  <ArticleInspector />
+                </div>
               </div>
               <div className="row-start-3"></div>
             </div>
