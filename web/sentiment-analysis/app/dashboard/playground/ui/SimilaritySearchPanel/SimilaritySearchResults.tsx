@@ -73,14 +73,14 @@ export function SimilaritySearchResults() {
                       className="col-span-3 grid grid-cols-subgrid not-last:border-b not-last:border-gray-950/5 dark:not-last:border-white/5"
                       data={article}
                     >
-                      <td className="px-2 py-2 align-top font-mono text-xs/6 font-medium">
+                      <td className="px-2 py-2 align-top font-mono text-xs/6">
                         {Math.round(distance * 1000) / 1000}
                       </td>
 
-                      <td className="truncate max-w-xs px-2 py-2 align-top font-mono text-xs/6 font-medium">
+                      <td className="truncate max-w-xs px-2 py-2 align-top font-mono text-xs/6">
                         {article.content_title}
                       </td>
-                      <td className="px-2 py-2 align-top font-mono text-xs/6 font-medium">
+                      <td className="px-2 py-2 align-top font-mono text-xs/6">
                         <DateTimeConverter
                           dateTime={article.publish_datetime}
                           formatStr="MMM d, yyyy"

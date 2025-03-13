@@ -13,8 +13,20 @@ export function RoutingTableRow({
   data: Article;
 }>) {
   const { selectedArticle, selectArticle } = useDashboardContext();
+  const isSelected = selectedArticle?.id === data.id;
+
   return (
-    <tr className={className} onClick={() => selectArticle(data)}>
+    <tr
+      className={`${className} ${
+        isSelected ? "font-bold" : "hover:font-semibold cursor-pointer"
+      }`}
+      onClick={() => {
+        // Prevent duplicate calls if the row is already selected.
+        if (!isSelected) {
+          selectArticle(data);
+        }
+      }}
+    >
       {children}
     </tr>
   );
