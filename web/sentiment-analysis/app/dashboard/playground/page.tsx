@@ -1,6 +1,5 @@
 "use client";
 
-// import { ArrowRightStartOnRectangleIcon } from "@heroicons/react/24/outline";
 // Local imports
 import { DashboardProvider } from "./DashboardProvider";
 import {
@@ -18,15 +17,16 @@ export default function DashboardPlaygroundPage() {
         <div></div>
         <div className="grid grid-cols-[35rem_minmax(0,1fr)_35rem] ">
           <div className="col-start-1">
-            <div className=" grid grid-cols-1 grid-rows-[2.5rem_auto] gap-3">
-              <div className="row-start-1">{/* <ToggleButton /> */}</div>
+            <div className=" grid grid-cols-1 grid-rows-[2.5rem_auto_2.5rem]">
+              <div className="row-start-1"></div>
 
-              <div className="row-start-2">
+              <div className="row-start-2  max-h-[calc(100dvh-(var(--spacing)*14.25)-5rem)] overflow-auto">
                 <SimilaritySearchProvider>
                   <SimilaritySearchForm />
                   <SimilaritySearchResults />
                 </SimilaritySearchProvider>
               </div>
+              <div className="row-start-3"></div>
             </div>
           </div>
           <div className="col-start-2 ">
@@ -52,11 +52,3 @@ export default function DashboardPlaygroundPage() {
     </DashboardProvider>
   );
 }
-
-// function ToggleButton() {
-//   return (
-//     <button className="rounded-md bg-rose-500/50 px-4 py-2 text-sm">
-//       <ArrowRightStartOnRectangleIcon className="size-4" />
-//     </button>
-//   );
-// }
