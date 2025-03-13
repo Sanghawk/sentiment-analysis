@@ -14,11 +14,15 @@ interface DashboardState {
   loading: boolean; // Tracks whether content is being loaded
   error: Error | null; // Stores any error encountered during fetching
   selectedArticle: Article | null; // Stores the currently selected article
+  highlightedChunkId: number | null;
+  scrollToChunkId: number | null;
 }
 
 // Extend the state interface to include actions
 interface DashboardContextType extends DashboardState {
   selectArticle: (article: Article, query: string) => Promise<void>; // Function to select and load an article
+  setHighlightedChunkId: (chunkId: number | null) => void;
+  setScrollToChunkId: (chunkId: number | null) => void;
 }
 
 // Create a context with an undefined default value
@@ -32,6 +36,8 @@ const initialState: DashboardState = {
   loading: false,
   error: null,
   selectedArticle: null,
+  highlightedChunkId: null,
+  scrollToChunkId: null,
 };
 
 /**
@@ -102,8 +108,23 @@ export function DashboardProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  function setHighlightedChunkId(chunkId: number | null) {
+    dispatch({ highlightedChunkId: chunkId });
+  }
+
+  function setScrollToChunkId(chunkId: number | null) {
+    dispatch({ scrollToChunkId: chunkId });
+  }
+
   return (
-    <DashboardContext.Provider value={{ ...state, selectArticle }}>
+    <DashboardContext.Provider
+      value={{
+        ...state,
+        selectArticle,
+        setHighlightedChunkId,
+        setScrollToChunkId,
+      }}
+    >
       {children}
     </DashboardContext.Provider>
   );

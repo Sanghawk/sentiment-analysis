@@ -8,6 +8,7 @@ import {
   SimilaritySearchForm,
   SimilaritySearchResults,
   ArticleReader,
+  ArticleInspector,
 } from "./ui";
 
 export default function DashboardPlaygroundPage() {
@@ -29,14 +30,23 @@ export default function DashboardPlaygroundPage() {
             </div>
           </div>
           <div className="col-start-2 ">
-            <div className="grid grid-rows-[2.5rem_auto]">
+            <div className="grid grid-rows-[2.5rem_auto_2.5rem]">
               <div className="row-start-1 w-full text-center"></div>
-              <div className="row-start-2 max-h-[calc(100dvh-(var(--spacing)*14.25)-2.5rem)] overflow-auto">
+              <div className="row-start-2 max-h-[calc(100dvh-(var(--spacing)*14.25)-5rem)] overflow-auto">
                 <ArticleReader />
               </div>
+              <div className="row-start-3"></div>
             </div>
           </div>
-          <div className="col-start-3"></div>
+          <div className="col-start-3">
+            <div className="grid grid-rows-[2.5rem_auto]">
+              <div className="row-start-1"></div>
+              <div className="row-start-2 max-h-[calc(100dvh-(var(--spacing)*14.25)-5rem)] overflow-auto">
+                <ArticleInspector />
+              </div>
+              <div className="row-start-3"></div>
+            </div>
+          </div>
         </div>
       </div>
     </DashboardProvider>
